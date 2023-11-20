@@ -1,7 +1,7 @@
 {
   "name": "sample_cy_plugin",
   "type": "module",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "description": "Description of your module",
   "main": "index.js",
   "scripts": {
