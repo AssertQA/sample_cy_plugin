@@ -1,0 +1,14 @@
+{
+  "name": "cy-test-plugin-go",
+  "version": "1.0.0",
+  "description": "Description of your module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "David",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
