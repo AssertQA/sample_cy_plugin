@@ -1,7 +1,8 @@
 
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-
+ 
+export function CreateJsonFile(){
 //const projectPath = './'; // *** Replace with  Cypress Path ***
 const folderName = 'TargetFolder'; 
 const fileName = 'targetfile.json'; 
@@ -38,4 +39,5 @@ if (!existsSync(filePath)) {
 } else {
     writeFileSync(filePath, jsonData);
     console.log(`File '${fileName}' already exists in '${folderName}'. Regenerating....`);
+}
 }
