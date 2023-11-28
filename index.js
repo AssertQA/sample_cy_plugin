@@ -1,43 +1,106 @@
-//Testing 
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
- 
-export function CreateJsonFile(){
-//const projectPath = './'; // *** Replace with  Cypress Path ***
-const folderName = 'TargetFolder'; 
-const fileName = 'targetfile.json'; 
+import * as os from "os";
+import * as fs from "fs";
+import { execSync } from "child_process";
+import { globSync } from "glob";
 
-
-// Construct the full path to the file within the folder
-const filePath = join(folderName, fileName);
-
-
-// Get the current Unix timestamp
-const unixTimestamp = Math.floor(Date.now() / 1000);
-
-// Create an object with the timestamp
-const data = {
-  timestamp: unixTimestamp,
-};
-
-// Convert the object to JSON
-const jsonData = JSON.stringify(data, null, 2); // The third parameter is for indentation (2 spaces in this case)
-
-// Check if the folder exists
-if (!existsSync(folderName)) {
-    // If the folder doesn't exist, create it
-    mkdirSync(folderName, { recursive: true });
-    console.log(`Folder '${folderName}' created.`);
-} 
-
-
-// Check if the file exists
-if (!existsSync(filePath)) {
-    // If the file doesn't exist, create an sample  file
-    writeFileSync(filePath, jsonData);
-    console.log(`File '${fileName}' created in '${folderName}'.`);
-} else {
-    writeFileSync(filePath, jsonData);
-    console.log(`File '${fileName}' already exists in '${folderName}'. Regenerating....`);
+export function beforeRun(details) {
+  if (!jsonnetExtensionExist()) {
+    buildJsonnetExtension();
+  }
+  // if (os.platform().includes("win")) {
+  //   interpretJsonNet(
+  //     "./cypress/support/jsonnet/**/*.jsonnet",
+  //     ".//cypress//fixtures//tests"
+  //   );
+  //  else {
+  interpretJsonNet(
+    "./cypress/support/jsonnet/**/*.jsonnet",
+    "./cypress/fixtures/tests"
+  );
 }
+// }
+
+export function beforeSpec(spec) {
+  console.log("spec ::::>", spec);
+  console.log(os.platform());
+  // if (os.platform().includes("win")) {
+  //   interpretJsonNet(
+  //     "./cypress/support/jsonnet/**/*" + spec.fileName + "*.jsonnet",
+  //     ".//cypress//fixtures//data"
+  //   );
+  // }
+  // else {
+  interpretJsonNet(
+    "./cypress/support/jsonnet/**/*" + spec.fileName + "*.jsonnet",
+    "./cypress/fixtures/data"
+  );
+}
+// }
+
+function jsonnetExtensionExist() {
+  return (
+    fs.existsSync(".//node_modules//sample_cy_plugin//jsonnet//jsonnetext.exe") ||
+    fs.existsSync("./node_modules/sample_cy_plugin/jsonnet/jsonnetext.sh")
+  );
+}
+
+function buildJsonnetExtension() {
+  try {
+    let execOutput;
+    if (os.platform().includes("win")) {
+      execOutput = execSync(
+        `go build -C .//node_modules//sample_cy_plugin//jsonnet//`
+      ).toString();
+    } else {
+      execOutput = execSync(
+        `go build -C ./node_modules/sample_cy_plugin/jsonnet/ -o jsonnetext.sh`
+      ).toString();
+      execSync(`chmod +x ./node_modules/sample_cy_plugin/jsonnet/jsonnetext.sh`);
+    }
+    console.log(`Exec Output: ${execOutput}`);
+  } catch (err) {
+    console.error("An error happened during jsonnet extension build");
+    console.error(err);
+    console.log(`------------------------------/n`);
+    process.exit(1);
+  }
+}
+
+function interpretJsonNet(input, outFolder) {
+  const runner = "jsonnetext.sh";
+
+  const jsonnetFiles = globSync(input);
+
+  for (const file of jsonnetFiles) {
+    let outputFileName;
+    // if (os.platform().includes("win")) {
+    //   outputFileName =
+    //     outFolder +
+    //     file.substring(file.lastIndexOf("//")).replace(".jsonnet", ".json");
+    // } else {
+    outputFileName =
+      outFolder +
+      file.substring(file.lastIndexOf("/")).replace(".jsonnet", ".json");
+    // }
+
+    try {
+      //   if (os.platform().includes("win")) {
+      //     execSync(
+      //       `.//cypress//support//jsonnet//extensions//${runner} ${file} ${outputFileName}`
+      //     ).toString();
+      //   } else {
+      execSync(
+        `./node_modules/sample_cy_plugin/jsonnet/${runner} ${file} ${outputFileName}`
+      ).toString();
+      // }
+    } catch (err) {
+      console.error(
+        "An error happened during jsonnet evaluation for dynamic test creation",
+        file
+      );
+      console.error(err);
+      console.log(`------------------------------/n`);
+      process.exit(1);
+    }
+  }
 }
