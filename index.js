@@ -7,7 +7,7 @@ export function beforeRun(details) {
   if (!jsonnetExtensionExist()) {
     buildJsonnetExtension();
   }
-  // if (os.platform().includes("win")) {
+  // if (os.platform().includes("win32")) {
   //   interpretJsonNet(
   //     "./cypress/support/jsonnet/**/*.jsonnet",
   //     ".//cypress//fixtures//tests"
@@ -47,7 +47,7 @@ function jsonnetExtensionExist() {
 function buildJsonnetExtension() {
   try {
     let execOutput;
-    if (os.platform().includes("win")) {
+    if (os.platform().includes("win32")) {
       execOutput = execSync(
         `go build -C .//node_modules//sample_cy_plugin//jsonnet//`
       ).toString();
