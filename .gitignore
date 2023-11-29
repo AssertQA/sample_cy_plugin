@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Execs 
+jsonnet/jsonetext.sh
+jsonnet/jsonetext.exe
+
