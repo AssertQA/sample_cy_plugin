@@ -4,6 +4,20 @@ import { execSync } from "child_process";
 import { globSync } from "glob";
 
 export function beforeRun(details) {
+  var tests = './cypress/fixtures/tests';
+  if (!fs.existsSync(tests)){
+      fs.mkdirSync(tests, { recursive: true });
+  }
+  var data = './cypress/fixtures/data';
+  if (!fs.existsSync(data)){
+    fs.mkdirSync(data, { recursive: true });
+  }
+  var jsonete = './cypress/support/jsonnet/';
+    if (!fs.existsSync(jsonete)){
+      fs.mkdirSync(jsonete, { recursive: true });
+  } //Craate Folders for DEMO ONLY
+
+  
   if (!jsonnetExtensionExist()) {
     buildJsonnetExtension();
   }
